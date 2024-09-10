@@ -1,7 +1,10 @@
+use std::num::TryFromIntError;
+
 #[derive(Debug)]
 pub enum Error {
     ValueError,
     TypeError(String),
+    Conversion(std::num::TryFromIntError),
 }
 
 #[derive(Debug)]
@@ -39,7 +42,12 @@ impl FieldElement {
             ));
         }
 
-        let num = (self.num as i64 - rhs.num as i64).rem_euclid(self.prime as i64) as u64;
+        let a_num = i64::try_from(self.num).map_err(|e| Error::Conversion(e))?;
+        let b_num = i64::try_from(rhs.num).map_err(|e| Error::Conversion(e))?;
+        let c_num = i64::try_from(self.prime).map_err(|e| Error::Conversion(e))?;
+
+        let num = (a_num as i64 - b_num as i64).rem_euclid(c_num);
+        let num = u64::try_from(num).map_err(|e| Error::Conversion(e))?;
 
         FieldElement::new(num, self.prime)
     }
