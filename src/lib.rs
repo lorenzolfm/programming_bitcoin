@@ -1,5 +1,3 @@
-use std::num::TryFromIntError;
-
 #[derive(Debug)]
 pub enum Error {
     ValueError,
@@ -7,7 +5,7 @@ pub enum Error {
     Conversion(std::num::TryFromIntError),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct FieldElement {
     num: u64,
     prime: u64,
@@ -51,6 +49,18 @@ impl FieldElement {
 
         FieldElement::new(num, self.prime)
     }
+
+    fn mul(self, rhs: FieldElement) -> Result<Self, Error> {
+        let mut result = FieldElement::new(0, self.prime)?;
+        let mut count = rhs.num;
+
+        while count > 0 {
+            result = result.add(self.clone())?;
+            count -= 1;
+        }
+
+        Ok(result)
+    }
 }
 
 impl std::fmt::Display for FieldElement {
@@ -79,7 +89,7 @@ mod tests {
     }
 
     #[test]
-    fn exercise_2() {
+    fn add() {
         let p = 57;
 
         let a = FieldElement::new(44, p).unwrap();
@@ -99,6 +109,11 @@ mod tests {
         let actual = a.add(b).unwrap().add(c).unwrap();
 
         assert_eq!(actual, FieldElement::new(51, p).unwrap());
+    }
+
+    #[test]
+    fn sub() {
+        let p = 57;
 
         let a = FieldElement::new(52, p).unwrap();
         let b = FieldElement::new(30, p).unwrap();
@@ -107,5 +122,17 @@ mod tests {
         let actual = a.sub(b).unwrap().sub(c).unwrap();
 
         assert_eq!(actual, FieldElement::new(41, p).unwrap());
+    }
+
+    #[test]
+    fn mul() {
+        let p = 97;
+        let a = FieldElement::new(95, p).unwrap();
+        let b = FieldElement::new(45, p).unwrap();
+        let c = FieldElement::new(31, p).unwrap();
+
+        let actual = a.mul(b).unwrap().mul(c).unwrap();
+
+        assert_eq!(actual, FieldElement::new(23, p).unwrap());
     }
 }
