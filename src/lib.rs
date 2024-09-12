@@ -61,6 +61,12 @@ impl FieldElement {
 
         Ok(result)
     }
+
+    fn pow(self, exponent: u64) -> Result<Self, Error> {
+        let result = (self.num.pow(exponent as u32)).rem_euclid(self.prime);
+
+        Ok(FieldElement::new(result, self.prime)?)
+    }
 }
 
 impl std::fmt::Display for FieldElement {
@@ -107,7 +113,6 @@ mod tests {
         let c = FieldElement::new(49, p).unwrap();
 
         let actual = a.add(b).unwrap().add(c).unwrap();
-
         assert_eq!(actual, FieldElement::new(51, p).unwrap());
     }
 
@@ -134,5 +139,30 @@ mod tests {
         let actual = a.mul(b).unwrap().mul(c).unwrap();
 
         assert_eq!(actual, FieldElement::new(23, p).unwrap());
+
+        let a = FieldElement::new(17, p).unwrap();
+        let b = FieldElement::new(13, p).unwrap();
+        let c = FieldElement::new(19, p).unwrap();
+        let d = FieldElement::new(44, p).unwrap();
+
+        let actual = a.mul(b).unwrap().mul(c).unwrap().mul(d).unwrap();
+
+        assert_eq!(actual, FieldElement::new(68, p).unwrap());
+    }
+
+    #[test]
+    fn pow() {
+        let p = 19;
+        let a = FieldElement::new(7, p).unwrap();
+
+        let actual = a.pow(3).unwrap();
+
+        assert_eq!(actual, FieldElement::new(1, p).unwrap());
+
+        let a = FieldElement::new(9, p).unwrap();
+
+        let actual = a.pow(12).unwrap();
+
+        assert_eq!(actual, FieldElement::new(7, p).unwrap());
     }
 }
