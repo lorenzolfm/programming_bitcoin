@@ -70,6 +70,13 @@ impl FieldElement {
 
         Ok(FieldElement::new(result, self.prime)?)
     }
+
+    fn div(self, rhs: FieldElement) -> Result<Self, Error> {
+        let b = rhs.pow(-1)?;
+        let res = self.mul(b)?;
+
+        Ok(res)
+    }
 }
 
 impl std::fmt::Display for FieldElement {
@@ -167,5 +174,23 @@ mod tests {
         let actual = a.pow(12).unwrap();
 
         assert_eq!(actual, FieldElement::new(7, p).unwrap());
+    }
+
+    #[test]
+    fn div() {
+        let p = 19;
+        let a = FieldElement::new(2, p).unwrap();
+        let b = FieldElement::new(7, p).unwrap();
+
+        let actual = a.div(b).unwrap();
+
+        assert_eq!(actual, FieldElement::new(3, p).unwrap());
+
+        let a = FieldElement::new(7, p).unwrap();
+        let b = FieldElement::new(5, p).unwrap();
+
+        let actual = a.div(b).unwrap();
+
+        assert_eq!(actual, FieldElement::new(9, p).unwrap());
     }
 }
