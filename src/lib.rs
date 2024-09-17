@@ -62,8 +62,11 @@ impl FieldElement {
         Ok(result)
     }
 
-    fn pow(self, exponent: u64) -> Result<Self, Error> {
-        let result = (self.num.pow(exponent as u32)).rem_euclid(self.prime);
+    fn pow(self, exponent: i64) -> Result<Self, Error> {
+        let prime_minus_one = i64::try_from(self.prime - 1).map_err(|e| Error::Conversion(e))?;
+        let exponent = u32::try_from(exponent.rem_euclid(prime_minus_one))
+            .map_err(|e| Error::Conversion(e))?;
+        let result = (self.num.pow(exponent)).rem_euclid(self.prime);
 
         Ok(FieldElement::new(result, self.prime)?)
     }
