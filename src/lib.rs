@@ -91,6 +91,30 @@ impl std::cmp::PartialEq for FieldElement {
     }
 }
 
+pub struct Point {
+    pub a: i64,
+    pub b: i64,
+    pub x: i64,
+    pub y: i64,
+}
+
+#[allow(unused)]
+impl Point {
+    fn new(x: i64, y: i64, a: i64, b: i64) -> Result<Self, Error> {
+        if y.pow(2) != x.pow(3) + std::ops::Mul::mul(a, x) + b {
+            return Err(Error::ValueError);
+        }
+
+        Ok(Self { a, b, x, y })
+    }
+}
+
+impl std::cmp::PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.a == other.a && self.b == other.b
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,5 +216,23 @@ mod tests {
         let actual = a.div(b).unwrap();
 
         assert_eq!(actual, FieldElement::new(9, p).unwrap());
+    }
+
+    #[test]
+    fn point() {
+        let a = 5;
+        let b = 7;
+
+        let p1 = Point::new(2, 4, a, b);
+        assert!(p1.is_err());
+
+        let p2 = Point::new(-1, -1, a, b);
+        assert!(p2.is_ok());
+
+        let p3 = Point::new(18, 77, a, b);
+        assert!(p3.is_ok());
+
+        let p4 = Point::new(5, 7, a, b);
+        assert!(p4.is_err());
     }
 }
