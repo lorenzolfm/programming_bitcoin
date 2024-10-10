@@ -44,6 +44,9 @@ impl Point {
             return Err(Error::ValueError);
         }
 
+        let a = self.a;
+        let b = self.b;
+
         match (self.coord, other.coord) {
             (
                 Coordinate::Real { x, y },
@@ -61,13 +64,26 @@ impl Point {
                     });
                 }
 
-                let slope = (other_y - y) / (other_x - x);
+                let slope = if self == other {
+                    if y == 0 {
+                        return Ok(Point {
+                            a,
+                            b,
+                            coord: Coordinate::Infinity,
+                        });
+                    }
+
+                    (3.mul(x.pow(2)) + a) / 2.mul(y)
+                } else {
+                    (other_y - y) / (other_x - x)
+                };
+
                 let new_x = slope.pow(2) - x - other_x;
                 let new_y = slope.mul(x - new_x) - y;
 
                 Ok(Point {
-                    a: self.a,
-                    b: self.b,
+                    a,
+                    b,
                     coord: Coordinate::Real { x: new_x, y: new_y },
                 })
             }
@@ -134,6 +150,13 @@ mod tests {
         let p3 = p1.add(&p2).unwrap();
 
         let expected = Point::new(Some(3), Some(-7), a, b).unwrap();
+
+        assert_eq!(p3, expected);
+
+        let p1 = Point::new(Some(-1), Some(-1), a, b).unwrap();
+        let p3 = p1.add(&p1).unwrap();
+
+        let expected = Point::new(Some(18), Some(77), a, b).unwrap();
 
         assert_eq!(p3, expected);
     }
