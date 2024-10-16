@@ -86,9 +86,33 @@ impl std::cmp::PartialEq for FieldElement {
     }
 }
 
+#[allow(unused)]
+macro_rules! new_field_element {
+    ($num:expr, $prime:expr) => {{
+        const fn assert_valid_field_element(num: u64, prime: u64) -> u64 {
+            if num >= prime {
+                panic!("Compile-time error: num must be less than prime!");
+            }
+            num
+        }
+
+        const NUM: u64 = $num;
+        const PRIME: u64 = $prime;
+
+        const VALID_NUM: u64 = assert_valid_field_element(NUM, PRIME);
+
+        FieldElement::new(VALID_NUM, PRIME).unwrap()
+    }};
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a() {
+        new_field_element!(5, 6);
+    }
 
     #[test]
     fn eq() {
@@ -187,5 +211,65 @@ mod tests {
         let actual = a.div(b).unwrap();
 
         assert_eq!(actual, FieldElement::new(9, p).unwrap());
+    }
+
+    #[test]
+    fn chapter_3_exercise1() {
+        // Evaluate whether these points are on the curve y^2 = x^3 + 7 over F223
+        let p = 223;
+        let x = FieldElement::new(192, p).unwrap();
+        let y = FieldElement::new(105, p).unwrap();
+
+        assert!(
+            y.pow(2).unwrap()
+                == x.pow(3)
+                    .unwrap()
+                    .add(FieldElement::new(7, p).unwrap())
+                    .unwrap()
+        );
+
+        let x = FieldElement::new(17, p).unwrap();
+        let y = FieldElement::new(56, p).unwrap();
+
+        assert!(
+            y.pow(2).unwrap()
+                == x.pow(3)
+                    .unwrap()
+                    .add(FieldElement::new(7, p).unwrap())
+                    .unwrap()
+        );
+
+        let x = FieldElement::new(200, p).unwrap();
+        let y = FieldElement::new(119, p).unwrap();
+
+        assert!(
+            y.pow(2).unwrap()
+                != x.pow(3)
+                    .unwrap()
+                    .add(FieldElement::new(7, p).unwrap())
+                    .unwrap()
+        );
+
+        let x = FieldElement::new(1, p).unwrap();
+        let y = FieldElement::new(193, p).unwrap();
+
+        assert!(
+            y.pow(2).unwrap()
+                == x.pow(3)
+                    .unwrap()
+                    .add(FieldElement::new(7, p).unwrap())
+                    .unwrap()
+        );
+
+        let x = FieldElement::new(42, p).unwrap();
+        let y = FieldElement::new(99, p).unwrap();
+
+        assert!(
+            y.pow(2).unwrap()
+                != x.pow(3)
+                    .unwrap()
+                    .add(FieldElement::new(7, p).unwrap())
+                    .unwrap()
+        );
     }
 }
