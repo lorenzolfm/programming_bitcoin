@@ -61,7 +61,7 @@ impl FieldElement {
         let prime_minus_one = i64::try_from(self.prime - 1).map_err(|e| Error::Conversion(e))?;
         let exponent = u32::try_from(exponent.rem_euclid(prime_minus_one))
             .map_err(|e| Error::Conversion(e))?;
-        let result = (self.num.pow(exponent)).rem_euclid(self.prime);
+        let result = mod_pow(self.num, exponent as i64, self.prime);
 
         Ok(FieldElement::new(result, self.prime)?)
     }
@@ -72,6 +72,29 @@ impl FieldElement {
 
         Ok(res)
     }
+}
+
+fn mod_pow(mut base: u64, mut exp: i64, modulus: u64) -> u64 {
+    if modulus == 1 {
+        return 0;
+    }
+
+    let mut result = 1;
+
+    base = base.rem_euclid(modulus);
+    if base <= 0 {
+        base += modulus;
+    }
+
+    while exp > 0 {
+        if exp % 2 == 1 {
+            result = (result * base).rem_euclid(modulus);
+        }
+        exp = exp >> 1;
+        base = (base * base).rem_euclid(modulus);
+    }
+
+    result
 }
 
 impl std::fmt::Display for FieldElement {
