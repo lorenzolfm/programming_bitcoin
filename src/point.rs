@@ -290,4 +290,27 @@ mod tests {
 
         assert_eq!(p3, expected);
     }
+
+    #[test]
+    fn add_for_field_element() {
+        let p = 223;
+        let a = FieldElement::new(0, p).unwrap();
+        let b = FieldElement::new(7, p).unwrap();
+
+        let x1 = FieldElement::new(170, p).unwrap();
+        let y1 = FieldElement::new(142, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let x2 = FieldElement::new(60, p).unwrap();
+        let y2 = FieldElement::new(139, p).unwrap();
+        let p2 = Point::<FieldElement>::new(Some(x2), Some(y2), a, b).unwrap();
+
+        let p3 = p1.add(&p2).unwrap();
+
+        let actual_x = FieldElement::new(220, p).unwrap();
+        let actual_y = FieldElement::new(181, p).unwrap();
+        let actual = Point::<FieldElement>::new(Some(actual_x), Some(actual_y), a, b).unwrap();
+
+        assert_eq!(p3, actual);
+    }
 }
