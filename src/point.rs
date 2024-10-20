@@ -3,20 +3,20 @@ use std::ops::Mul;
 use crate::Error;
 
 #[derive(Copy, Clone, Debug)]
-pub enum Coordinate {
-    Real { x: i64, y: i64 },
+pub enum Coordinate<T> {
+    Real { x: T, y: T },
     Infinity,
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct Point {
-    pub a: i64,
-    pub b: i64,
-    pub coord: Coordinate,
+pub struct Point<T> {
+    pub a: T,
+    pub b: T,
+    pub coord: Coordinate<T>,
 }
 
 #[allow(unused)]
-impl Point {
+impl Point<i64> {
     fn new(x: Option<i64>, y: Option<i64>, a: i64, b: i64) -> Result<Self, Error> {
         match (x, y) {
             (Some(x_val), Some(y_val)) => {
@@ -98,13 +98,13 @@ impl Point {
     }
 }
 
-impl std::cmp::PartialEq for Point {
+impl<T: PartialEq> std::cmp::PartialEq for Point<T> {
     fn eq(&self, other: &Self) -> bool {
         if self.a != other.a || self.b != other.b {
             return false;
         }
 
-        match (self.coord, other.coord) {
+        match (&self.coord, &other.coord) {
             (
                 Coordinate::Real { x, y },
                 Coordinate::Real {
