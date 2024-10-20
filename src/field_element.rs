@@ -2,8 +2,8 @@ use crate::Error;
 
 #[derive(Debug, Clone, Copy)]
 pub struct FieldElement {
-    num: u64,
-    prime: u64,
+    pub num: u64,
+    pub prime: u64,
 }
 
 #[allow(unused)]
@@ -16,7 +16,7 @@ impl FieldElement {
         Ok(FieldElement { num, prime })
     }
 
-    fn add(self, rhs: FieldElement) -> Result<Self, Error> {
+    pub fn add(self, rhs: FieldElement) -> Result<Self, Error> {
         if self.prime != rhs.prime {
             return Err(Error::TypeError(
                 "Cannot add two numbers in different fields".to_string(),
@@ -28,7 +28,7 @@ impl FieldElement {
         FieldElement::new(num, self.prime)
     }
 
-    fn sub(self, rhs: FieldElement) -> Result<Self, Error> {
+    pub fn sub(self, rhs: FieldElement) -> Result<Self, Error> {
         if self.prime != rhs.prime {
             return Err(Error::TypeError(
                 "Cannot subtract numbers in different fields".to_string(),
@@ -45,7 +45,7 @@ impl FieldElement {
         FieldElement::new(num, self.prime)
     }
 
-    fn mul(self, rhs: FieldElement) -> Result<Self, Error> {
+    pub fn mul(self, rhs: FieldElement) -> Result<Self, Error> {
         let mut result = FieldElement::new(0, self.prime)?;
         let mut count = rhs.num;
 
@@ -57,7 +57,7 @@ impl FieldElement {
         Ok(result)
     }
 
-    fn pow(self, exponent: i64) -> Result<Self, Error> {
+    pub fn pow(self, exponent: i64) -> Result<Self, Error> {
         let prime_minus_one = i64::try_from(self.prime - 1).map_err(|e| Error::Conversion(e))?;
         let exponent = u32::try_from(exponent.rem_euclid(prime_minus_one))
             .map_err(|e| Error::Conversion(e))?;
@@ -66,7 +66,7 @@ impl FieldElement {
         Ok(FieldElement::new(result, self.prime)?)
     }
 
-    fn div(self, rhs: FieldElement) -> Result<Self, Error> {
+    pub fn div(self, rhs: FieldElement) -> Result<Self, Error> {
         let b = rhs.pow(-1)?;
         let res = self.mul(b)?;
 
