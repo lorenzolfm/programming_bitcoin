@@ -1,6 +1,6 @@
 use crate::Error;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct FieldElement {
     num: u64,
     prime: u64,
@@ -86,44 +86,9 @@ impl std::cmp::PartialEq for FieldElement {
     }
 }
 
-#[allow(unused)]
-/// A macro that creates a `FieldElement`, ensuring the number is less than the prime.
-///
-/// # Examples
-///
-/// ```
-/// let fe = new_field_element!(5, 7); // This will compile successfully
-/// ```
-///
-/// ```compile_fail
-/// let fe = new_field_element!(10, 7); // This will not compile because 10 >= 7
-/// ```
-macro_rules! new_field_element {
-    ($num:expr, $prime:expr) => {{
-        const fn assert_valid_field_element(num: u64, prime: u64) -> u64 {
-            if num >= prime {
-                panic!("Compile-time error: num must be less than prime!");
-            }
-            num
-        }
-
-        const NUM: u64 = $num;
-        const PRIME: u64 = $prime;
-
-        const VALID_NUM: u64 = assert_valid_field_element(NUM, PRIME);
-
-        FieldElement::new(VALID_NUM, PRIME).unwrap()
-    }};
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn a() {
-        new_field_element!(5, 6);
-    }
 
     #[test]
     fn eq() {
