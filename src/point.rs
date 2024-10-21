@@ -312,5 +312,37 @@ mod tests {
         let actual = Point::<FieldElement>::new(Some(actual_x), Some(actual_y), a, b).unwrap();
 
         assert_eq!(p3, actual);
+
+        let x1 = FieldElement::new(47, p).unwrap();
+        let y1 = FieldElement::new(71, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let x2 = FieldElement::new(17, p).unwrap();
+        let y2 = FieldElement::new(56, p).unwrap();
+        let p2 = Point::<FieldElement>::new(Some(x2), Some(y2), a, b).unwrap();
+
+        let p3 = p1.add(&p2).unwrap();
+
+        let actual_x = FieldElement::new(215, p).unwrap();
+        let actual_y = FieldElement::new(68, p).unwrap();
+        let actual = Point::<FieldElement>::new(Some(actual_x), Some(actual_y), a, b).unwrap();
+
+        assert_eq!(p3, actual);
+
+        let x1 = FieldElement::new(143, p).unwrap();
+        let y1 = FieldElement::new(98, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let x2 = FieldElement::new(76, p).unwrap();
+        let y2 = FieldElement::new(66, p).unwrap();
+        let p2 = Point::<FieldElement>::new(Some(x2), Some(y2), a, b).unwrap();
+
+        let p3 = p1.add(&p2).unwrap();
+
+        let actual_x = FieldElement::new(47, p).unwrap();
+        let actual_y = FieldElement::new(71, p).unwrap();
+        let actual = Point::<FieldElement>::new(Some(actual_x), Some(actual_y), a, b).unwrap();
+
+        assert_eq!(p3, actual);
     }
 }
