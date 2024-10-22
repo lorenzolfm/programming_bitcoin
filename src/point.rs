@@ -96,6 +96,10 @@ impl Point<i64> {
             }),
         }
     }
+
+    fn scalar_mul(self, scalar: u64) -> Result<Self, Error> {
+        todo!()
+    }
 }
 
 #[allow(unused)]
@@ -190,17 +194,45 @@ impl Point<FieldElement> {
             }),
         }
     }
-impl std::fmt::Debug for Point<FieldElement> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+    fn scalar_mul(mut self, scalar: u64) -> Result<Self, Error> {
         let (x, y) = match self.coord {
             Coordinate::Real { x, y } => (x, y),
-            Coordinate::Infinity => todo!(),
+            Coordinate::Infinity => {
+                return Ok(Point::<FieldElement>::new(None, None, self.a, self.b)?);
+            }
         };
-        write!(
-            f,
-            "({}, {}), curve y² = x³+ {}x + {} over F{}",
-            x.num, y.num, self.a.num, self.b.num, x.prime
-        )
+
+        let mut res = Point::<FieldElement>::new(Some(x), Some(y), self.a, self.b)?;
+        let mut counter = scalar;
+
+        while counter > 1 {
+            res = res.add(&self)?;
+            counter -= 1;
+        }
+
+        Ok(res)
+    }
+}
+
+impl std::fmt::Debug for Point<FieldElement> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.coord {
+            Coordinate::Real { x, y } => {
+                write!(
+                    f,
+                    "({}, {}), curve y² = x³+ {}x + {} over F{}",
+                    x.num, y.num, self.a.num, self.b.num, x.prime
+                )
+            }
+            Coordinate::Infinity => {
+                write!(
+                    f,
+                    "(∞, ∞), curve y² = x³+ {}x + {} over F",
+                    self.a.num, self.b.num
+                )
+            }
+        }
     }
 }
 
@@ -366,5 +398,87 @@ mod tests {
         let actual = Point::<FieldElement>::new(Some(actual_x), Some(actual_y), a, b).unwrap();
 
         assert_eq!(p3, actual);
+    }
+
+    #[test]
+    fn test_scalar_mul() {
+        let p = 223;
+        let a = FieldElement::new(0, p).unwrap();
+        let b = FieldElement::new(7, p).unwrap();
+
+        let x1 = FieldElement::new(192, p).unwrap();
+        let y1 = FieldElement::new(105, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(2).unwrap();
+
+        let expected_x = FieldElement::new(49, p).unwrap();
+        let expected_y = FieldElement::new(71, p).unwrap();
+        let expected =
+            Point::<FieldElement>::new(Some(expected_x), Some(expected_y), a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
+
+        let x1 = FieldElement::new(143, p).unwrap();
+        let y1 = FieldElement::new(98, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(2).unwrap();
+
+        let expected_x = FieldElement::new(64, p).unwrap();
+        let expected_y = FieldElement::new(168, p).unwrap();
+        let expected =
+            Point::<FieldElement>::new(Some(expected_x), Some(expected_y), a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
+
+        let x1 = FieldElement::new(47, p).unwrap();
+        let y1 = FieldElement::new(71, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(2).unwrap();
+
+        let expected_x = FieldElement::new(36, p).unwrap();
+        let expected_y = FieldElement::new(111, p).unwrap();
+        let expected =
+            Point::<FieldElement>::new(Some(expected_x), Some(expected_y), a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
+
+        let x1 = FieldElement::new(47, p).unwrap();
+        let y1 = FieldElement::new(71, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(4).unwrap();
+
+        let expected_x = FieldElement::new(194, p).unwrap();
+        let expected_y = FieldElement::new(51, p).unwrap();
+        let expected =
+            Point::<FieldElement>::new(Some(expected_x), Some(expected_y), a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
+
+        let x1 = FieldElement::new(47, p).unwrap();
+        let y1 = FieldElement::new(71, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(8).unwrap();
+
+        let expected_x = FieldElement::new(116, p).unwrap();
+        let expected_y = FieldElement::new(55, p).unwrap();
+        let expected =
+            Point::<FieldElement>::new(Some(expected_x), Some(expected_y), a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
+
+        let x1 = FieldElement::new(47, p).unwrap();
+        let y1 = FieldElement::new(71, p).unwrap();
+        let p1 = Point::<FieldElement>::new(Some(x1), Some(y1), a, b).unwrap();
+
+        let scalar_mul = p1.scalar_mul(21).unwrap();
+
+        let expected = Point::<FieldElement>::new(None, None, a, b).unwrap();
+
+        assert_eq!(scalar_mul, expected);
     }
 }
