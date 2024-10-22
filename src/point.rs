@@ -2,13 +2,13 @@ use std::ops::Mul;
 
 use crate::{field_element::FieldElement, Error};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub enum Coordinate<T> {
     Real { x: T, y: T },
     Infinity,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub struct Point<T> {
     pub a: T,
     pub b: T,
@@ -189,6 +189,28 @@ impl Point<FieldElement> {
                 coord: Coordinate::Infinity,
             }),
         }
+    }
+impl std::fmt::Debug for Point<FieldElement> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let (x, y) = match self.coord {
+            Coordinate::Real { x, y } => (x, y),
+            Coordinate::Infinity => todo!(),
+        };
+        write!(
+            f,
+            "({}, {}), curve y² = x³+ {}x + {} over F{}",
+            x.num, y.num, self.a.num, self.b.num, x.prime
+        )
+    }
+}
+
+impl std::fmt::Debug for Point<i64> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let (x, y) = match self.coord {
+            Coordinate::Real { x, y } => (x, y),
+            Coordinate::Infinity => todo!(),
+        };
+        write!(f, "({}, {}), curve y² = x³+ {}x + {}", x, y, self.a, self.b)
     }
 }
 
