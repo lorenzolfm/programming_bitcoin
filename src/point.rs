@@ -481,4 +481,30 @@ mod tests {
 
         assert_eq!(scalar_mul, expected);
     }
+
+    #[test]
+    fn find_order_of_group() {
+        let p = 223;
+        let a = FieldElement::new(0, p).unwrap();
+        let b = FieldElement::new(7, p).unwrap();
+
+        let point_at_infinity = Point::<FieldElement>::new(None, None, a, b).unwrap();
+
+        let x = FieldElement::new(15, p).unwrap();
+        let y = FieldElement::new(86, p).unwrap();
+        let generator = Point::<FieldElement>::new(Some(x), Some(y), a, b).unwrap();
+
+        let mut counter = 1;
+        loop {
+            let point = generator.scalar_mul(counter).unwrap();
+
+            if point == point_at_infinity {
+                break;
+            }
+
+            counter += 1;
+        }
+
+        assert_eq!(counter, 7);
+    }
 }
