@@ -196,22 +196,21 @@ impl Point<FieldElement> {
     }
 
     fn scalar_mul(mut self, scalar: u64) -> Result<Self, Error> {
-        let (x, y) = match self.coord {
-            Coordinate::Real { x, y } => (x, y),
-            Coordinate::Infinity => {
-                return Ok(Point::<FieldElement>::new(None, None, self.a, self.b)?);
+        let mut coef = scalar;
+        let mut current = self;
+        let mut result = Point::<FieldElement>::new(None, None, self.a, self.b)?;
+
+        while coef > 0 {
+            if coef & 1 == 1 {
+                result = result.add(&current)?;
             }
-        };
 
-        let mut res = Point::<FieldElement>::new(Some(x), Some(y), self.a, self.b)?;
-        let mut counter = scalar;
+            current = current.add(&current)?;
 
-        while counter > 1 {
-            res = res.add(&self)?;
-            counter -= 1;
+            coef >>= 1;
         }
 
-        Ok(res)
+        Ok(result)
     }
 }
 
