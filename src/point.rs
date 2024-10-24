@@ -185,8 +185,8 @@ impl Point<FieldElement> {
                     coord: Coordinate::Real { x: new_x, y: new_y },
                 })
             }
-            (Coordinate::Real { x, y }, Coordinate::Infinity) => Ok(*other),
-            (Coordinate::Infinity, Coordinate::Real { x, y }) => Ok(*self),
+            (Coordinate::Real { x, y }, Coordinate::Infinity) => Ok(*self),
+            (Coordinate::Infinity, Coordinate::Real { x, y }) => Ok(*other),
             (Coordinate::Infinity, Coordinate::Infinity) => Ok(Point {
                 a: self.a,
                 b: self.b,
