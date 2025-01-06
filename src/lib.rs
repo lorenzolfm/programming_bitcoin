@@ -1,9 +1,12 @@
-mod field_element;
-mod point;
+fn example() -> i64 {
+    1 + 1
+}
 
-#[derive(Debug)]
-pub enum Error {
-    ValueError,
-    TypeError(String),
-    Conversion(std::num::TryFromIntError),
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_example() {
+        assert_eq!(super::example(), 2);
+    }
 }
