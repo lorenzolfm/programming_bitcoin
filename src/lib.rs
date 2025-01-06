@@ -1,12 +1,9 @@
-fn example() -> i64 {
-    1 + 1
-}
-
+mod field_element;
 
 #[cfg(test)]
 mod tests {
     #[test]
     fn test_example() {
-        assert_eq!(super::example(), 2);
+        assert_eq!(1, 1);
     }
 }
