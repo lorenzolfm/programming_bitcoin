@@ -109,6 +109,61 @@ impl std::cmp::PartialEq for FieldElement {
     }
 }
 
+#[derive(Clone, Copy)]
+pub struct FieldElement2 {
+    pub num: crypto_bigint::U256,
+    pub prime: crypto_bigint::U256,
+}
+
+impl FieldElement2 {
+    pub fn new(
+        num: crypto_bigint::U256,
+        prime: crypto_bigint::U256,
+    ) -> Result<FieldElement2, Error> {
+        if num >= prime {
+            return Err(Error::ValueError);
+        }
+
+        Ok(FieldElement2 { num, prime })
+    }
+
+    pub fn add(self, rhs: FieldElement2) -> Result<Self, Error> {
+        if self.prime != rhs.prime {
+            return Err(Error::TypeError(
+                "Cannot add two numbers in different fields".to_string(),
+            ));
+        }
+
+        let num = self.num.add_mod(&rhs.num, &self.prime);
+
+        FieldElement2::new(num, self.prime)
+    }
+
+    pub fn sub(self, rhs: FieldElement2) -> Result<Self, Error> {
+        if self.prime != rhs.prime {
+            return Err(Error::TypeError(
+                "Cannot subtract numbers in different fields".to_string(),
+            ));
+        }
+
+        let num = self.num.sub_mod(&rhs.num, &self.prime);
+
+        FieldElement2::new(num, self.prime)
+    }
+
+    pub fn mul(self, rhs: FieldElement2) -> Result<Self, Error> {
+        let mut result = FieldElement2::new(crypto_bigint::U256::ZERO, self.prime)?;
+        let mut count = rhs.num;
+
+        while count > crypto_bigint::U256::ZERO {
+            result = result.add(self.clone())?;
+            count -= crypto_bigint::U256::ONE;
+        }
+
+        Ok(result)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
