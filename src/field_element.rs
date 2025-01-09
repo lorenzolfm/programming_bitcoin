@@ -4,6 +4,7 @@ use std::{
     ops::{Add, Sub},
 };
 
+#[allow(unused)]
 #[derive(Debug)]
 pub enum Error {
     ValueError(String),
@@ -11,12 +12,14 @@ pub enum Error {
     Conversion(TryFromIntError),
 }
 
-#[derive(Debug)]
+#[allow(unused)]
+#[derive(Clone, Debug)]
 struct FieldElement {
     pub num: u128,
     pub prime: u128,
 }
 
+#[allow(unused)]
 impl FieldElement {
     pub fn new(num: u128, prime: u128) -> Result<Self, Error> {
         if num >= prime {
@@ -63,6 +66,18 @@ impl FieldElement {
             prime: self.prime,
         })
     }
+
+    pub fn mul(&self, other: Self) -> Result<Self, Error> {
+        let mut result = FieldElement::new(0, self.prime)?;
+        let mut count = other.num;
+
+        while count > 0 {
+            result = result.add(self.clone())?;
+            count -= 1;
+        }
+
+        Ok(result)
+    }
 }
 
 impl std::fmt::Display for FieldElement {
@@ -95,7 +110,7 @@ mod tests {
         use super::FieldElement;
 
         #[test]
-        fn exercise1() {
+        fn exercise2() {
             let p = 57;
 
             // 44 + 33
@@ -133,6 +148,32 @@ mod tests {
 
             let expected = FieldElement::new(41, p).unwrap();
             let actual = a.sub(b).unwrap().sub(c).unwrap();
+
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        fn exercise4() {
+            let p = 97;
+
+            // 95*45*31
+            let a = FieldElement::new(95, p).unwrap();
+            let b = FieldElement::new(45, p).unwrap();
+            let c = FieldElement::new(31, p).unwrap();
+
+            let expected = FieldElement::new(23, p).unwrap();
+            let actual = a.mul(b).unwrap().mul(c).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 17*13*19*44
+            let a = FieldElement::new(17, p).unwrap();
+            let b = FieldElement::new(13, p).unwrap();
+            let c = FieldElement::new(19, p).unwrap();
+            let d = FieldElement::new(44, p).unwrap();
+
+            let expected = FieldElement::new(68, p).unwrap();
+            let actual = a.mul(b).unwrap().mul(c).unwrap().mul(d).unwrap();
 
             assert_eq!(actual, expected);
         }
