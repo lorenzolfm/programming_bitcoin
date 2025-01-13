@@ -78,6 +78,18 @@ impl FieldElement {
 
         Ok(result)
     }
+
+    pub fn pow(&self, exponent: u32) -> Result<Self, Error> {
+        let mut counter = 0;
+        let mut aux = FieldElement::new(1, self.prime)?;
+
+        while counter < exponent {
+            aux = self.mul(aux)?;
+            counter += 1;
+        }
+
+        Ok(aux)
+    }
 }
 
 impl std::fmt::Display for FieldElement {
@@ -153,6 +165,24 @@ mod tests {
         }
 
         #[test]
+        fn test_pow() {
+            let p = 19;
+            let a = FieldElement::new(7, p).unwrap();
+
+            let expected = FieldElement::new(1, p).unwrap();
+            let actual = a.pow(3).unwrap();
+
+            assert_eq!(actual, expected);
+
+            let a = FieldElement::new(9, p).unwrap();
+
+            let expected = FieldElement::new(7, p).unwrap();
+            let actual = a.pow(12).unwrap();
+
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
         fn exercise4() {
             let p = 97;
 
@@ -174,6 +204,15 @@ mod tests {
 
             let expected = FieldElement::new(68, p).unwrap();
             let actual = a.mul(b).unwrap().mul(c).unwrap().mul(d).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 12^7 * 77^49
+            let a = FieldElement::new(12, p).unwrap();
+            let b = FieldElement::new(77, p).unwrap();
+
+            let expected = FieldElement::new(63, p).unwrap();
+            let actual = a.pow(7).unwrap().mul(b.pow(49).unwrap()).unwrap();
 
             assert_eq!(actual, expected);
         }
