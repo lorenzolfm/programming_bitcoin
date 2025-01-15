@@ -79,7 +79,11 @@ impl FieldElement {
         Ok(result)
     }
 
-    pub fn pow(&self, exponent: u32) -> Result<Self, Error> {
+    pub fn pow(&self, exponent: i32) -> Result<Self, Error> {
+        let prime_minus_one = i128::try_from(self.prime - 1).map_err(|e| Error::Conversion(e))?;
+        let exponent = i128::from(exponent);
+        let exponent = exponent.rem_euclid(prime_minus_one);
+
         let mut counter = 0;
         let mut aux = FieldElement::new(1, self.prime)?;
 
@@ -89,6 +93,13 @@ impl FieldElement {
         }
 
         Ok(aux)
+    }
+
+    pub fn div(&self, other: Self) -> Result<Self, Error> {
+        let b = other.pow(-1)?;
+        let res = self.mul(b)?;
+
+        Ok(res)
     }
 }
 
@@ -213,6 +224,37 @@ mod tests {
 
             let expected = FieldElement::new(63, p).unwrap();
             let actual = a.pow(7).unwrap().mul(b.pow(49).unwrap()).unwrap();
+
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        fn exercise8() {
+            let p = 31;
+
+            // 3/24
+            let a = FieldElement::new(3, p).unwrap();
+            let b = FieldElement::new(24, p).unwrap();
+
+            let expected = FieldElement::new(4, p).unwrap();
+            let actual = a.div(b).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 17^-3
+            let a = FieldElement::new(17, p).unwrap();
+
+            let expected = FieldElement::new(29, p).unwrap();
+            let actual = a.pow(-3).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 4^-4 * 11
+            let a = FieldElement::new(4, p).unwrap();
+            let b = FieldElement::new(11, p).unwrap();
+
+            let expected = FieldElement::new(13, p).unwrap();
+            let actual = a.pow(-4).unwrap().mul(b).unwrap();
 
             assert_eq!(actual, expected);
         }
