@@ -1,6 +1,8 @@
 mod field_element;
 mod point;
 
+// TODO: implement ops vs checked_ops (i.e. checked_add vs add)
+
 #[allow(unused)]
 #[derive(Debug)]
 pub enum Error {
@@ -152,27 +154,40 @@ mod tests {
 
             let x = 2;
             let y = -4;
-            let actual = Point::new(x, y, a, b);
+            let actual = Point::new(Some(x), Some(y), a, b);
 
             assert!(actual.is_err());
 
             let x = -1;
             let y = -1;
-            let actual = Point::new(x, y, a, b);
+            let actual = Point::new(Some(x), Some(y), a, b);
 
             assert!(actual.is_ok());
 
             let x = 18;
             let y = 77;
-            let actual = Point::new(x, y, a, b);
+            let actual = Point::new(Some(x), Some(y), a, b);
 
             assert!(actual.is_ok());
 
             let x = 5;
             let y = 7;
-            let actual = Point::new(x, y, a, b);
+            let actual = Point::new(Some(x), Some(y), a, b);
 
             assert!(actual.is_err());
+        }
+
+        #[test]
+        fn exercise6() {
+            let a = 5;
+            let b = 7;
+
+            let p1 = Point::new(Some(-1), Some(-1), a, b).unwrap();
+            let p2 = Point::new(Some(-1), Some(-1), a, b).unwrap();
+            let expected = Point::new(Some(18), Some(77), a, b).unwrap();
+            let actual = p1.add(&p2).unwrap();
+
+            assert_eq!(actual, expected);
         }
     }
 }
