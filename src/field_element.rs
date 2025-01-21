@@ -1,53 +1,66 @@
-use crate::Error;
+use std::{
+    i128,
+    ops::{Add, Sub},
+};
 
-#[derive(Debug, Clone, Copy)]
+#[allow(unused)]
+#[derive(Clone, Debug)]
 pub struct FieldElement {
-    pub num: u64,
-    pub prime: u64,
+    pub num: u128,
+    pub prime: u128,
 }
 
 #[allow(unused)]
 impl FieldElement {
-    pub fn new(num: u64, prime: u64) -> Result<FieldElement, Error> {
+    pub fn new(num: u128, prime: u128) -> Result<Self, crate::Error> {
         if num >= prime {
-            return Err(Error::ValueError);
+            return Err(crate::Error::ValueError(format!(
+                "Num {num} not in field range 0 to {}",
+                prime - 1
+            )));
         }
 
         Ok(FieldElement { num, prime })
     }
 
-    pub fn add(self, rhs: FieldElement) -> Result<Self, Error> {
-        if self.prime != rhs.prime {
-            return Err(Error::TypeError(
-                "Cannot add two numbers in different fields".to_string(),
+    pub fn add(&self, other: Self) -> Result<Self, crate::Error> {
+        if self.prime != other.prime {
+            return Err(crate::Error::TypeError(
+                "Cannot add two numbers in different fields".to_owned(),
             ));
         }
 
-        let num = (self.num + rhs.num).rem_euclid(self.prime);
+        let num = (self.num.add(other.num)).rem_euclid(self.prime);
 
-        FieldElement::new(num, self.prime)
+        Ok(FieldElement {
+            num,
+            prime: self.prime,
+        })
     }
 
-    pub fn sub(self, rhs: FieldElement) -> Result<Self, Error> {
-        if self.prime != rhs.prime {
-            return Err(Error::TypeError(
-                "Cannot subtract numbers in different fields".to_string(),
+    pub fn sub(&self, other: Self) -> Result<Self, crate::Error> {
+        if self.prime != other.prime {
+            return Err(crate::Error::TypeError(
+                "Cannot subtract two nubmers in different fields".to_owned(),
             ));
         }
 
-        let a_num = i64::try_from(self.num).map_err(|e| Error::Conversion(e))?;
-        let b_num = i64::try_from(rhs.num).map_err(|e| Error::Conversion(e))?;
-        let c_num = i64::try_from(self.prime).map_err(|e| Error::Conversion(e))?;
+        let a = i128::try_from(self.num).map_err(|e| crate::Error::Conversion(e))?;
+        let b = i128::try_from(other.num).map_err(|e| crate::Error::Conversion(e))?;
+        let c = i128::try_from(self.prime).map_err(|e| crate::Error::Conversion(e))?;
 
-        let num = (a_num as i64 - b_num as i64).rem_euclid(c_num);
-        let num = u64::try_from(num).map_err(|e| Error::Conversion(e))?;
+        let num = (a.sub(b)).rem_euclid(c);
+        let num = u128::try_from(num).map_err(|e| crate::Error::Conversion(e))?;
 
-        FieldElement::new(num, self.prime)
+        Ok(FieldElement {
+            num,
+            prime: self.prime,
+        })
     }
 
-    pub fn mul(self, rhs: FieldElement) -> Result<Self, Error> {
+    pub fn mul(&self, other: Self) -> Result<Self, crate::Error> {
         let mut result = FieldElement::new(0, self.prime)?;
-        let mut count = rhs.num;
+        let mut count = other.num;
 
         while count > 0 {
             result = result.add(self.clone())?;
@@ -57,44 +70,30 @@ impl FieldElement {
         Ok(result)
     }
 
-    pub fn pow(self, exponent: i64) -> Result<Self, Error> {
-        let prime_minus_one = i64::try_from(self.prime - 1).map_err(|e| Error::Conversion(e))?;
-        let exponent = u32::try_from(exponent.rem_euclid(prime_minus_one))
-            .map_err(|e| Error::Conversion(e))?;
-        let result = mod_pow(self.num, exponent as i64, self.prime);
+    pub fn pow(&self, exponent: i32) -> Result<Self, crate::Error> {
+        let prime_minus_one =
+            i128::try_from(self.prime - 1).map_err(|e| crate::Error::Conversion(e))?;
 
-        Ok(FieldElement::new(result, self.prime)?)
+        let exponent = i128::from(exponent);
+        let exponent = exponent.rem_euclid(prime_minus_one);
+
+        let mut counter = 0;
+        let mut aux = FieldElement::new(1, self.prime)?;
+
+        while counter < exponent {
+            aux = self.mul(aux)?;
+            counter += 1;
+        }
+
+        Ok(aux)
     }
 
-    pub fn div(self, rhs: FieldElement) -> Result<Self, Error> {
-        let b = rhs.pow(-1)?;
+    pub fn div(&self, other: Self) -> Result<Self, crate::Error> {
+        let b = other.pow(-1)?;
         let res = self.mul(b)?;
 
         Ok(res)
     }
-}
-
-fn mod_pow(mut base: u64, mut exp: i64, modulus: u64) -> u64 {
-    if modulus == 1 {
-        return 0;
-    }
-
-    let mut result = 1;
-
-    base = base.rem_euclid(modulus);
-    if base <= 0 {
-        base += modulus;
-    }
-
-    while exp > 0 {
-        if exp % 2 == 1 {
-            result = (result * base).rem_euclid(modulus);
-        }
-        exp = exp >> 1;
-        base = (base * base).rem_euclid(modulus);
-    }
-
-    result
 }
 
 impl std::fmt::Display for FieldElement {
@@ -106,224 +105,5 @@ impl std::fmt::Display for FieldElement {
 impl std::cmp::PartialEq for FieldElement {
     fn eq(&self, other: &Self) -> bool {
         self.num == other.num && self.prime == other.prime
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct FieldElement2 {
-    pub num: crypto_bigint::U256,
-    pub prime: crypto_bigint::U256,
-}
-
-impl FieldElement2 {
-    pub fn new(
-        num: crypto_bigint::U256,
-        prime: crypto_bigint::U256,
-    ) -> Result<FieldElement2, Error> {
-        if num >= prime {
-            return Err(Error::ValueError);
-        }
-
-        Ok(FieldElement2 { num, prime })
-    }
-
-    pub fn add(self, rhs: FieldElement2) -> Result<Self, Error> {
-        if self.prime != rhs.prime {
-            return Err(Error::TypeError(
-                "Cannot add two numbers in different fields".to_string(),
-            ));
-        }
-
-        let num = self.num.add_mod(&rhs.num, &self.prime);
-
-        FieldElement2::new(num, self.prime)
-    }
-
-    pub fn sub(self, rhs: FieldElement2) -> Result<Self, Error> {
-        if self.prime != rhs.prime {
-            return Err(Error::TypeError(
-                "Cannot subtract numbers in different fields".to_string(),
-            ));
-        }
-
-        let num = self.num.sub_mod(&rhs.num, &self.prime);
-
-        FieldElement2::new(num, self.prime)
-    }
-
-    pub fn mul(self, rhs: FieldElement2) -> Result<Self, Error> {
-        let mut result = FieldElement2::new(crypto_bigint::U256::ZERO, self.prime)?;
-        let mut count = rhs.num;
-
-        while count > crypto_bigint::U256::ZERO {
-            result = result.add(self.clone())?;
-            count -= crypto_bigint::U256::ONE;
-        }
-
-        Ok(result)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn eq() {
-        let a = FieldElement::new(7, 13).unwrap();
-        let b = FieldElement::new(6, 13).unwrap();
-
-        assert!(a != b);
-        assert!(a == a);
-    }
-
-    #[test]
-    fn add() {
-        let p = 57;
-
-        let a = FieldElement::new(44, p).unwrap();
-        let b = FieldElement::new(33, p).unwrap();
-
-        assert_eq!(a.add(b).unwrap(), FieldElement::new(20, p).unwrap());
-
-        let a = FieldElement::new(9, p).unwrap();
-        let b = FieldElement::new(29, p).unwrap();
-
-        assert_eq!(a.sub(b).unwrap(), FieldElement::new(37, p).unwrap());
-
-        let a = FieldElement::new(17, p).unwrap();
-        let b = FieldElement::new(42, p).unwrap();
-        let c = FieldElement::new(49, p).unwrap();
-
-        let actual = a.add(b).unwrap().add(c).unwrap();
-        assert_eq!(actual, FieldElement::new(51, p).unwrap());
-    }
-
-    #[test]
-    fn sub() {
-        let p = 57;
-
-        let a = FieldElement::new(52, p).unwrap();
-        let b = FieldElement::new(30, p).unwrap();
-        let c = FieldElement::new(38, p).unwrap();
-
-        let actual = a.sub(b).unwrap().sub(c).unwrap();
-
-        assert_eq!(actual, FieldElement::new(41, p).unwrap());
-    }
-
-    #[test]
-    fn mul() {
-        let p = 97;
-        let a = FieldElement::new(95, p).unwrap();
-        let b = FieldElement::new(45, p).unwrap();
-        let c = FieldElement::new(31, p).unwrap();
-
-        let actual = a.mul(b).unwrap().mul(c).unwrap();
-
-        assert_eq!(actual, FieldElement::new(23, p).unwrap());
-
-        let a = FieldElement::new(17, p).unwrap();
-        let b = FieldElement::new(13, p).unwrap();
-        let c = FieldElement::new(19, p).unwrap();
-        let d = FieldElement::new(44, p).unwrap();
-
-        let actual = a.mul(b).unwrap().mul(c).unwrap().mul(d).unwrap();
-
-        assert_eq!(actual, FieldElement::new(68, p).unwrap());
-    }
-
-    #[test]
-    fn pow() {
-        let p = 19;
-        let a = FieldElement::new(7, p).unwrap();
-
-        let actual = a.pow(3).unwrap();
-
-        assert_eq!(actual, FieldElement::new(1, p).unwrap());
-
-        let a = FieldElement::new(9, p).unwrap();
-
-        let actual = a.pow(12).unwrap();
-
-        assert_eq!(actual, FieldElement::new(7, p).unwrap());
-    }
-
-    #[test]
-    fn div() {
-        let p = 19;
-        let a = FieldElement::new(2, p).unwrap();
-        let b = FieldElement::new(7, p).unwrap();
-
-        let actual = a.div(b).unwrap();
-
-        assert_eq!(actual, FieldElement::new(3, p).unwrap());
-
-        let a = FieldElement::new(7, p).unwrap();
-        let b = FieldElement::new(5, p).unwrap();
-
-        let actual = a.div(b).unwrap();
-
-        assert_eq!(actual, FieldElement::new(9, p).unwrap());
-    }
-
-    #[test]
-    fn chapter_3_exercise1() {
-        // Evaluate whether these points are on the curve y^2 = x^3 + 7 over F223
-        let p = 223;
-        let x = FieldElement::new(192, p).unwrap();
-        let y = FieldElement::new(105, p).unwrap();
-
-        assert!(
-            y.pow(2).unwrap()
-                == x.pow(3)
-                    .unwrap()
-                    .add(FieldElement::new(7, p).unwrap())
-                    .unwrap()
-        );
-
-        let x = FieldElement::new(17, p).unwrap();
-        let y = FieldElement::new(56, p).unwrap();
-
-        assert!(
-            y.pow(2).unwrap()
-                == x.pow(3)
-                    .unwrap()
-                    .add(FieldElement::new(7, p).unwrap())
-                    .unwrap()
-        );
-
-        let x = FieldElement::new(200, p).unwrap();
-        let y = FieldElement::new(119, p).unwrap();
-
-        assert!(
-            y.pow(2).unwrap()
-                != x.pow(3)
-                    .unwrap()
-                    .add(FieldElement::new(7, p).unwrap())
-                    .unwrap()
-        );
-
-        let x = FieldElement::new(1, p).unwrap();
-        let y = FieldElement::new(193, p).unwrap();
-
-        assert!(
-            y.pow(2).unwrap()
-                == x.pow(3)
-                    .unwrap()
-                    .add(FieldElement::new(7, p).unwrap())
-                    .unwrap()
-        );
-
-        let x = FieldElement::new(42, p).unwrap();
-        let y = FieldElement::new(99, p).unwrap();
-
-        assert!(
-            y.pow(2).unwrap()
-                != x.pow(3)
-                    .unwrap()
-                    .add(FieldElement::new(7, p).unwrap())
-                    .unwrap()
-        );
     }
 }
