@@ -18,127 +18,124 @@ mod tests {
 
         #[test]
         fn exercise2() {
-            let p = 57;
-
             // 44 + 33
-            let a = FieldElement::new(44, p).unwrap();
-            let b = FieldElement::new(33, p).unwrap();
+            let a = FieldElement::<57>::new(44).unwrap();
+            let b = FieldElement::<57>::new(33).unwrap();
 
-            let expected = FieldElement::new(20, p).unwrap();
-            let actual = a.add(b).unwrap();
+            let expected = FieldElement::<57>::new(20).unwrap();
+            let actual = a + b;
 
             assert_eq!(actual, expected);
 
             // 9 - 29
-            let a = FieldElement::new(9, p).unwrap();
-            let b = FieldElement::new(29, p).unwrap();
+            let a = FieldElement::<57>::new(9).unwrap();
+            let b = FieldElement::<57>::new(29).unwrap();
 
-            let expected = FieldElement::new(37, p).unwrap();
-            let actual = a.sub(b).unwrap();
+            let expected = FieldElement::<57>::new(37).unwrap();
+            let actual = a - b;
 
             assert_eq!(actual, expected);
 
             // 17 + 42 + 49
-            let a = FieldElement::new(17, p).unwrap();
-            let b = FieldElement::new(42, p).unwrap();
-            let c = FieldElement::new(49, p).unwrap();
+            let a = FieldElement::<57>::new(17).unwrap();
+            let b = FieldElement::<57>::new(42).unwrap();
+            let c = FieldElement::<57>::new(49).unwrap();
 
-            let expected = FieldElement::new(51, p).unwrap();
-            let actual = a.add(b).unwrap().add(c).unwrap();
+            let expected = FieldElement::<57>::new(51).unwrap();
+            let actual = a + b + c;
 
             assert_eq!(actual, expected);
 
             // 52 - 30 - 38
-            let a = FieldElement::new(52, p).unwrap();
-            let b = FieldElement::new(30, p).unwrap();
-            let c = FieldElement::new(38, p).unwrap();
+            let a = FieldElement::<57>::new(52).unwrap();
+            let b = FieldElement::<57>::new(30).unwrap();
+            let c = FieldElement::<57>::new(38).unwrap();
 
-            let expected = FieldElement::new(41, p).unwrap();
-            let actual = a.sub(b).unwrap().sub(c).unwrap();
+            let expected = FieldElement::<57>::new(41).unwrap();
+            let actual = a - b - c;
 
             assert_eq!(actual, expected);
         }
 
         #[test]
         fn test_pow() {
-            let p = 19;
-            let a = FieldElement::new(7, p).unwrap();
+            const P: u128 = 19;
 
-            let expected = FieldElement::new(1, p).unwrap();
-            let actual = a.pow(3).unwrap();
+            let a = FieldElement::<P>::new(7).unwrap();
+            let expected = FieldElement::<P>::new(1).unwrap();
+            let actual = a.pow(3);
 
             assert_eq!(actual, expected);
 
-            let a = FieldElement::new(9, p).unwrap();
-
-            let expected = FieldElement::new(7, p).unwrap();
-            let actual = a.pow(12).unwrap();
+            let a = FieldElement::<P>::new(9).unwrap();
+            let expected = FieldElement::<P>::new(7).unwrap();
+            let actual = a.pow(12);
 
             assert_eq!(actual, expected);
         }
 
         #[test]
         fn exercise4() {
-            let p = 97;
-
             // 95*45*31
-            let a = FieldElement::new(95, p).unwrap();
-            let b = FieldElement::new(45, p).unwrap();
-            let c = FieldElement::new(31, p).unwrap();
+            const P: u128 = 97;
+            let a = FieldElement::<P>::new(95).unwrap();
+            let b = FieldElement::<P>::new(45).unwrap();
+            let c = FieldElement::<P>::new(31).unwrap();
 
-            let expected = FieldElement::new(23, p).unwrap();
-            let actual = a.mul(b).unwrap().mul(c).unwrap();
+            let expected = FieldElement::<P>::new(23).unwrap();
+            let actual = a * b * c;
 
             assert_eq!(actual, expected);
 
             // 17*13*19*44
-            let a = FieldElement::new(17, p).unwrap();
-            let b = FieldElement::new(13, p).unwrap();
-            let c = FieldElement::new(19, p).unwrap();
-            let d = FieldElement::new(44, p).unwrap();
+            let a = FieldElement::<P>::new(17).unwrap();
+            let b = FieldElement::<P>::new(13).unwrap();
+            let c = FieldElement::<P>::new(19).unwrap();
+            let d = FieldElement::<P>::new(44).unwrap();
 
-            let expected = FieldElement::new(68, p).unwrap();
-            let actual = a.mul(b).unwrap().mul(c).unwrap().mul(d).unwrap();
+            let expected = FieldElement::<P>::new(68).unwrap();
+            let actual = a * b * c * d;
 
             assert_eq!(actual, expected);
 
             // 12^7 * 77^49
-            let a = FieldElement::new(12, p).unwrap();
-            let b = FieldElement::new(77, p).unwrap();
+            let a = FieldElement::<P>::new(12).unwrap();
+            let b = FieldElement::<P>::new(77).unwrap();
 
-            let expected = FieldElement::new(63, p).unwrap();
-            let actual = a.pow(7).unwrap().mul(b.pow(49).unwrap()).unwrap();
+            let expected = FieldElement::<P>::new(63).unwrap();
+            let actual = a.pow(7) * b.pow(49);
 
             assert_eq!(actual, expected);
         }
 
         #[test]
         fn exercise8() {
-            let p = 31;
+            const P: u128 = 31;
 
             // 3/24
-            let a = FieldElement::new(3, p).unwrap();
-            let b = FieldElement::new(24, p).unwrap();
+            let a = FieldElement::<P>::new(3).unwrap();
+            let b = FieldElement::<P>::new(24).unwrap();
 
-            let expected = FieldElement::new(4, p).unwrap();
-            let actual = a.div(b).unwrap();
+            let expected = FieldElement::<P>::new(4).unwrap();
+            let actual = a / b;
 
             assert_eq!(actual, expected);
 
             // 17^-3
-            let a = FieldElement::new(17, p).unwrap();
 
-            let expected = FieldElement::new(29, p).unwrap();
-            let actual = a.pow(-3).unwrap();
+            let a = FieldElement::<P>::new(17).unwrap();
+            let expected = FieldElement::<P>::new(29).unwrap();
+            let actual = a.pow(-3);
 
             assert_eq!(actual, expected);
 
             // 4^-4 * 11
-            let a = FieldElement::new(4, p).unwrap();
-            let b = FieldElement::new(11, p).unwrap();
 
-            let expected = FieldElement::new(13, p).unwrap();
-            let actual = a.pow(-4).unwrap().mul(b).unwrap();
+            let a = FieldElement::<P>::new(4).unwrap();
+            let b = FieldElement::<P>::new(11).unwrap();
+
+            let expected = FieldElement::<P>::new(13).unwrap();
+            let actual = a.pow(-4) * b;
 
             assert_eq!(actual, expected);
         }

@@ -1,109 +1,99 @@
-use std::{
-    i128,
-    ops::{Add, Sub},
-};
+use std::ops::{Add, Sub};
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct FieldElement<const P: u128>(u128);
 
 #[allow(unused)]
-#[derive(Clone, Debug)]
-pub struct FieldElement {
-    pub num: u128,
-    pub prime: u128,
-}
-
-#[allow(unused)]
-impl FieldElement {
-    pub fn new(num: u128, prime: u128) -> Result<Self, crate::Error> {
-        if num >= prime {
+impl<const P: u128> FieldElement<P> {
+    pub fn new(num: u128) -> Result<Self, crate::Error> {
+        if num >= P {
             return Err(crate::Error::ValueError(format!(
                 "Num {num} not in field range 0 to {}",
-                prime - 1
+                P - 1
             )));
         }
 
-        Ok(FieldElement { num, prime })
+        Ok(FieldElement(num))
     }
 
-    pub fn add(&self, other: Self) -> Result<Self, crate::Error> {
-        if self.prime != other.prime {
-            return Err(crate::Error::TypeError(
-                "Cannot add two numbers in different fields".to_owned(),
-            ));
-        }
-
-        let num = (self.num.add(other.num)).rem_euclid(self.prime);
-
-        Ok(FieldElement {
-            num,
-            prime: self.prime,
-        })
-    }
-
-    pub fn sub(&self, other: Self) -> Result<Self, crate::Error> {
-        if self.prime != other.prime {
-            return Err(crate::Error::TypeError(
-                "Cannot subtract two nubmers in different fields".to_owned(),
-            ));
-        }
-
-        let a = i128::try_from(self.num).map_err(|e| crate::Error::Conversion(e))?;
-        let b = i128::try_from(other.num).map_err(|e| crate::Error::Conversion(e))?;
-        let c = i128::try_from(self.prime).map_err(|e| crate::Error::Conversion(e))?;
+    pub fn checked_sub(self, other: FieldElement<P>) -> Option<FieldElement<P>> {
+        let a = i128::try_from(*self).ok()?;
+        let b = i128::try_from(*other).ok()?;
+        let c = i128::try_from(P).ok()?;
 
         let num = (a.sub(b)).rem_euclid(c);
-        let num = u128::try_from(num).map_err(|e| crate::Error::Conversion(e))?;
+        let num = u128::try_from(num).ok()?;
 
-        Ok(FieldElement {
-            num,
-            prime: self.prime,
-        })
+        Some(FieldElement(num))
     }
+}
 
-    pub fn mul(&self, other: Self) -> Result<Self, crate::Error> {
-        let mut result = FieldElement::new(0, self.prime)?;
-        let mut count = other.num;
+impl<const P: u128> std::ops::Deref for FieldElement<P> {
+    type Target = u128;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<const P: u128> std::ops::Add for FieldElement<P> {
+    type Output = FieldElement<P>;
+
+    fn add(self, other: Self) -> Self::Output {
+        FieldElement((self.0.add(other.0)).rem_euclid(P))
+    }
+}
+
+impl<const P: u128> std::ops::Sub for FieldElement<P> {
+    type Output = FieldElement<P>;
+
+    fn sub(self, other: Self) -> Self::Output {
+        self.checked_sub(other).expect("Conversion error")
+    }
+}
+
+impl<const P: u128> std::ops::Mul for FieldElement<P> {
+    type Output = FieldElement<P>;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut result = FieldElement(0);
+        let mut count = *rhs;
 
         while count > 0 {
-            result = result.add(self.clone())?;
+            result = result.add(self);
             count -= 1;
         }
 
-        Ok(result)
+        result
     }
+}
 
-    pub fn pow(&self, exponent: i32) -> Result<Self, crate::Error> {
-        let prime_minus_one =
-            i128::try_from(self.prime - 1).map_err(|e| crate::Error::Conversion(e))?;
+impl<const P: u128> std::ops::Div for FieldElement<P> {
+    type Output = FieldElement<P>;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        let b = rhs.pow(-1);
+        let res = self * b;
+
+        res
+    }
+}
+
+impl<const P: u128> FieldElement<P> {
+    pub fn pow(self, exponent: i32) -> FieldElement<P> {
+        let prime_minus_one = i128::try_from(P - 1).expect("Conversion error");
 
         let exponent = i128::from(exponent);
         let exponent = exponent.rem_euclid(prime_minus_one);
 
         let mut counter = 0;
-        let mut aux = FieldElement::new(1, self.prime)?;
+        let mut aux = FieldElement(1);
 
         while counter < exponent {
-            aux = self.mul(aux)?;
+            aux = self * aux;
             counter += 1;
         }
 
-        Ok(aux)
-    }
-
-    pub fn div(&self, other: Self) -> Result<Self, crate::Error> {
-        let b = other.pow(-1)?;
-        let res = self.mul(b)?;
-
-        Ok(res)
-    }
-}
-
-impl std::fmt::Display for FieldElement {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "FieldElement_{}({})", self.num, self.prime)
-    }
-}
-
-impl std::cmp::PartialEq for FieldElement {
-    fn eq(&self, other: &Self) -> bool {
-        self.num == other.num && self.prime == other.prime
+        aux
     }
 }
