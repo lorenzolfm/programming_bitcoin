@@ -1,5 +1,7 @@
 use std::ops::{Add, Sub};
 
+use crate::Pow;
+
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct FieldElement<const P: u128>(u128);
 
@@ -79,8 +81,10 @@ impl<const P: u128> std::ops::Div for FieldElement<P> {
     }
 }
 
-impl<const P: u128> FieldElement<P> {
-    pub fn pow(self, exponent: i32) -> FieldElement<P> {
+impl<const P: u128> crate::Pow for FieldElement<P> {
+    type Output = FieldElement<P>;
+
+    fn pow(self, exponent: i32) -> FieldElement<P> {
         let prime_minus_one = i128::try_from(P - 1).expect("Conversion error");
 
         let exponent = i128::from(exponent);
@@ -95,5 +99,11 @@ impl<const P: u128> FieldElement<P> {
         }
 
         aux
+    }
+}
+
+impl<const P: u128> std::fmt::Display for FieldElement<P> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{} Fp {}", self.0, P)
     }
 }
