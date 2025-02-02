@@ -2,7 +2,7 @@ use crate::{field_element::FieldElement, Pow};
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Coordinate<T> {
-    Real { x: T, y: T },
+    Real(T, T),
     Infinity,
 }
 
@@ -17,7 +17,7 @@ pub struct Point<T> {
 impl<T: std::fmt::Display> std::fmt::Display for Coordinate<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let (x, y) = match self {
-            Coordinate::Real { x, y } => (x.to_string(), y.to_string()),
+            Coordinate::Real(x, y) => (x.to_string(), y.to_string()),
             Coordinate::Infinity => ("∞".to_owned(), "∞".to_owned()),
         };
 
@@ -60,7 +60,7 @@ where
                 Ok(Point {
                     a,
                     b,
-                    coordinate: Coordinate::Real { x, y },
+                    coordinate: Coordinate::Real(x, y),
                 })
             }
             _ => return Err(crate::Error::ValueError("Invalid input".to_string())),
@@ -96,13 +96,7 @@ impl Add for Point<i128> {
         let b = self.b;
 
         match (self.coordinate, other.coordinate) {
-            (
-                Coordinate::Real { x, y },
-                Coordinate::Real {
-                    x: other_x,
-                    y: other_y,
-                },
-            ) => {
+            (Coordinate::Real(x, y), Coordinate::Real(other_x, other_y)) => {
                 if x == other_x && y != other_y {
                     return Ok(Point {
                         a,
@@ -133,18 +127,18 @@ impl Add for Point<i128> {
                 Ok(Point {
                     a,
                     b,
-                    coordinate: Coordinate::Real { x: new_x, y: new_y },
+                    coordinate: Coordinate::Real(new_x, new_y),
                 })
             }
-            (Coordinate::Real { x, y }, Coordinate::Infinity) => Ok(Point {
+            (Coordinate::Real(x, y), Coordinate::Infinity) => Ok(Point {
                 a,
                 b,
-                coordinate: Coordinate::Real { x, y },
+                coordinate: Coordinate::Real(x, y),
             }),
-            (Coordinate::Infinity, Coordinate::Real { x, y }) => Ok(Point {
+            (Coordinate::Infinity, Coordinate::Real(x, y)) => Ok(Point {
                 a,
                 b,
-                coordinate: Coordinate::Real { x, y },
+                coordinate: Coordinate::Real(x, y),
             }),
             (Coordinate::Infinity, Coordinate::Infinity) => Ok(Point {
                 a,
@@ -169,13 +163,7 @@ impl<const P: u128> Add for Point<crate::field_element::FieldElement<P>> {
         let b = self.b;
 
         match (self.coordinate, other.coordinate) {
-            (
-                Coordinate::Real { x, y },
-                Coordinate::Real {
-                    x: other_x,
-                    y: other_y,
-                },
-            ) => {
+            (Coordinate::Real(x, y), Coordinate::Real(other_x, other_y)) => {
                 if x == other_x && y != other_y {
                     return Ok(Point {
                         a,
@@ -211,18 +199,18 @@ impl<const P: u128> Add for Point<crate::field_element::FieldElement<P>> {
                 Ok(Point {
                     a,
                     b,
-                    coordinate: Coordinate::Real { x: new_x, y: new_y },
+                    coordinate: Coordinate::Real(new_x, new_y),
                 })
             }
-            (Coordinate::Real { x, y }, Coordinate::Infinity) => Ok(Point {
+            (Coordinate::Real(x, y), Coordinate::Infinity) => Ok(Point {
                 a,
                 b,
-                coordinate: Coordinate::Real { x, y },
+                coordinate: Coordinate::Real(x, y),
             }),
-            (Coordinate::Infinity, Coordinate::Real { x, y }) => Ok(Point {
+            (Coordinate::Infinity, Coordinate::Real(x, y)) => Ok(Point {
                 a,
                 b,
-                coordinate: Coordinate::Real { x, y },
+                coordinate: Coordinate::Real(x, y),
             }),
             (Coordinate::Infinity, Coordinate::Infinity) => Ok(Point {
                 a,
