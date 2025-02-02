@@ -43,14 +43,14 @@ where
         + Copy
         + PartialEq,
 {
-    pub fn new(x: Option<T>, y: Option<T>, a: T, b: T) -> Result<Self, crate::Error> {
-        match (x, y) {
-            (None, None) => Ok(Point {
+    pub fn new(point: Option<(T, T)>, a: T, b: T) -> Result<Self, crate::Error> {
+        match point {
+            None => Ok(Point {
                 a,
                 b,
                 coordinate: Coordinate::Infinity,
             }),
-            (Some(x), Some(y)) => {
+            Some((x, y)) => {
                 if y.pow(2) != x.pow(3) + a * x + b {
                     return Err(crate::Error::ValueError(format!(
                         "({x}, {y}) is not on the curve"

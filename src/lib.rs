@@ -155,16 +155,16 @@ mod tests {
             let a = 5;
             let b = 7;
 
-            let actual = Point::new(Some(2), Some(-4), a, b);
+            let actual = Point::new(Some((2, -4)), a, b);
             assert!(actual.is_err());
 
-            let actual = Point::new(Some(-1), Some(-1), a, b);
+            let actual = Point::new(Some((-1, -1)), a, b);
             assert!(actual.is_ok());
 
-            let actual = Point::new(Some(18), Some(77), a, b);
+            let actual = Point::new(Some((18, 77)), a, b);
             assert!(actual.is_ok());
 
-            let actual = Point::new(Some(5), Some(7), a, b);
+            let actual = Point::new(Some((5, 7)), a, b);
             assert!(actual.is_err());
         }
 
@@ -173,30 +173,12 @@ mod tests {
             let a = 5;
             let b = 7;
 
-            let p1 = Point::new(Some(-1), Some(-1), a, b).unwrap();
-            let p2 = Point::new(Some(-1), Some(-1), a, b).unwrap();
-            let expected = Point::new(Some(18), Some(77), a, b).unwrap();
+            let p1 = Point::new(Some((-1, -1)), a, b).unwrap();
+            let p2 = Point::new(Some((-1, -1)), a, b).unwrap();
+            let expected = Point::new(Some((18, 77)), a, b).unwrap();
             let actual = p1.add(&p2).unwrap();
 
             assert_eq!(actual, expected);
         }
     }
-
-    /*
-    mod chapter_2 {
-
-        #[test]
-        fn exercise6() {
-            let a = 5;
-            let b = 7;
-
-            let p1 = Point::new(Some(-1), Some(-1), a, b).unwrap();
-            let p2 = Point::new(Some(-1), Some(-1), a, b).unwrap();
-            let expected = Point::new(Some(18), Some(77), a, b).unwrap();
-            let actual = p1.add(&p2).unwrap();
-
-            assert_eq!(actual, expected);
-        }
-    }
-    */
 }
