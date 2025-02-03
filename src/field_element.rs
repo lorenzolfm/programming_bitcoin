@@ -2,20 +2,18 @@ use std::ops::{Add, Sub};
 
 use crate::Pow;
 
+// TODO(lorenzolfm): remove up from u128;
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct FieldElement<const P: u128>(u128);
+pub struct FieldElement<const P: u128>(pub u128);
 
 #[allow(unused)]
 impl<const P: u128> FieldElement<P> {
-    pub fn new(num: u128) -> Result<Self, crate::Error> {
+    pub const fn new(num: u128) -> Self {
         if num >= P {
-            return Err(crate::Error::ValueError(format!(
-                "Num {num} not in field range 0 to {}",
-                P - 1
-            )));
+            panic!("field element should be less then P")
         }
 
-        Ok(FieldElement(num))
+        FieldElement(num)
     }
 
     pub fn checked_sub(self, other: FieldElement<P>) -> Option<FieldElement<P>> {
