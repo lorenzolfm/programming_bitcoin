@@ -2,9 +2,18 @@ use std::ops::{Add, Sub};
 
 use crate::Pow;
 
-// TODO(lorenzolfm): remove up from u128;
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct FieldElement<const P: u128>(pub u128);
+pub struct FieldElement<const P: u128>(u128);
+
+impl<const P: u128> From<i128> for FieldElement<P> {
+    fn from(value: i128) -> Self {
+        if value < 0 {
+            panic!("from a negative value")
+        }
+
+        FieldElement::new(value as u128)
+    }
+}
 
 #[allow(unused)]
 impl<const P: u128> FieldElement<P> {

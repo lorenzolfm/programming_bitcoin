@@ -24,6 +24,14 @@ where
     }
 }
 
+impl crate::Pow for i128 {
+    type Output = Self;
+
+    fn pow(self, exponent: i32) -> Self::Output {
+        self.pow(exponent as u32)
+    }
+}
+
 impl<C: Curve> Point<C>
 where
     C::Scalar: crate::Pow<Output = C::Scalar>

@@ -148,25 +148,7 @@ mod tests {
     }
 
     mod chapter2 {
-        use crate::point::{Add, Point};
-
-        #[test]
-        fn exercise1() {
-            let a = 5;
-            let b = 7;
-
-            let actual = Point::new(Some((2, -4)), a, b);
-            assert!(actual.is_err());
-
-            let actual = Point::new(Some((-1, -1)), a, b);
-            assert!(actual.is_ok());
-
-            let actual = Point::new(Some((18, 77)), a, b);
-            assert!(actual.is_ok());
-
-            let actual = Point::new(Some((5, 7)), a, b);
-            assert!(actual.is_err());
-        }
+        use crate::point::Point;
 
         #[derive(Debug, PartialEq)]
         struct Curve;
@@ -179,39 +161,26 @@ mod tests {
 
         #[test]
         fn exercise1_again() {
-            let p = crate::point::Point::<Curve>::new(Some((-2, -4)));
+            let p = Point::<Curve>::new(Some((-2, -4)));
             assert!(p.is_err());
 
-            let p = crate::point::Point::<Curve>::new(Some((-1, -1)));
+            let p = Point::<Curve>::new(Some((-1, -1)));
             assert!(p.is_ok());
 
-            let p = crate::point::Point::<Curve>::new(Some((18, 77)));
+            let p = Point::<Curve>::new(Some((18, 77)));
             assert!(p.is_ok());
 
-            let p = crate::point::Point::<Curve>::new(Some((5, 7)));
+            let p = Point::<Curve>::new(Some((5, 7)));
             assert!(p.is_err());
         }
 
         #[test]
         fn exercise6_again() {
-            let p1 = crate::point::Point::<Curve>::new(Some((-1, -1))).unwrap();
-            let p2 = crate::point::Point::<Curve>::new(Some((-1, -1))).unwrap();
+            let p1 = Point::<Curve>::new(Some((-1, -1))).unwrap();
+            let p2 = Point::<Curve>::new(Some((-1, -1))).unwrap();
 
             let expected = crate::point::Point::<Curve>::new(Some((18, 77))).unwrap();
             let actual = p1 + p2;
-
-            assert_eq!(actual, expected);
-        }
-
-        #[test]
-        fn exercise6() {
-            let a = 5;
-            let b = 7;
-
-            let p1 = Point::new(Some((-1, -1)), a, b).unwrap();
-            let p2 = Point::new(Some((-1, -1)), a, b).unwrap();
-            let expected = Point::new(Some((18, 77)), a, b).unwrap();
-            let actual = p1.add(&p2).unwrap();
 
             assert_eq!(actual, expected);
         }
@@ -294,9 +263,9 @@ mod tests {
             )))
             .unwrap();
 
-            //let actual = p1 + p2;
+            let actual = p1 + p2;
 
-            //assert_eq!(actual, expected);
+            assert_eq!(actual, expected);
         }
     }
 }
