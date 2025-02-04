@@ -32,6 +32,7 @@ impl crate::Pow for i128 {
     }
 }
 
+#[allow(unused)]
 impl<C: Curve> Point<C>
 where
     C::Scalar: crate::Pow<Output = C::Scalar>

@@ -266,6 +266,50 @@ mod tests {
             let actual = p1 + p2;
 
             assert_eq!(actual, expected);
+
+            let p1 = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let p2 = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(17),
+                FieldElement::<P>::new(56),
+            )))
+            .unwrap();
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(215),
+                FieldElement::<P>::new(68),
+            )))
+            .unwrap();
+
+            let actual = p1 + p2;
+
+            assert_eq!(actual, expected);
+
+            let p1 = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(143),
+                FieldElement::<P>::new(98),
+            )))
+            .unwrap();
+
+            let p2 = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(76),
+                FieldElement::<P>::new(66),
+            )))
+            .unwrap();
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let actual = p1 + p2;
+
+            assert_eq!(actual, expected);
         }
     }
 }
