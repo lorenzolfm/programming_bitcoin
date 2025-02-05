@@ -196,7 +196,7 @@ mod tests {
         const A: FieldElement<P> = FieldElement::<P>::new(0);
         const B: FieldElement<P> = FieldElement::<P>::new(7);
 
-        #[derive(Debug, PartialEq)]
+        #[derive(Debug, PartialEq, Clone, Copy)]
         struct Secp256k1;
         impl Curve for Secp256k1 {
             type Scalar = FieldElement<P>;
@@ -308,6 +308,100 @@ mod tests {
             .unwrap();
 
             let actual = p1 + p2;
+
+            assert_eq!(actual, expected);
+        }
+
+        #[test]
+        fn exercise4() {
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(192),
+                FieldElement::<P>::new(105),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(2);
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(49),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            assert_eq!(actual, expected);
+
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(143),
+                FieldElement::<P>::new(98),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(2);
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(64),
+                FieldElement::<P>::new(168),
+            )))
+            .unwrap();
+
+            assert_eq!(actual, expected);
+
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(2);
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(36),
+                FieldElement::<P>::new(111),
+            )))
+            .unwrap();
+
+            assert_eq!(actual, expected);
+
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(4);
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(194),
+                FieldElement::<P>::new(51),
+            )))
+            .unwrap();
+
+            assert_eq!(actual, expected);
+
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(8);
+
+            let expected = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(116),
+                FieldElement::<P>::new(55),
+            )))
+            .unwrap();
+
+            assert_eq!(actual, expected);
+
+            let p = Point::<Secp256k1>::new(Some((
+                FieldElement::<P>::new(47),
+                FieldElement::<P>::new(71),
+            )))
+            .unwrap();
+
+            let actual = p.scalar_mul(21);
+            let expected = Point::<Secp256k1>::new(None).unwrap();
 
             assert_eq!(actual, expected);
         }

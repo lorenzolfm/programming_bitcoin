@@ -107,3 +107,29 @@ where
         }
     }
 }
+
+#[allow(unused)]
+impl<C: Curve + std::cmp::PartialEq + Copy> Point<C>
+where
+    C::Scalar: Copy
+        + PartialEq
+        + From<i128>
+        + crate::Pow<Output = C::Scalar>
+        + std::ops::Add<C::Scalar, Output = C::Scalar>
+        + std::ops::Sub<C::Scalar, Output = C::Scalar>
+        + std::ops::Mul<C::Scalar, Output = C::Scalar>
+        + std::ops::Sub<C::Scalar, Output = C::Scalar>
+        + std::ops::Div<C::Scalar, Output = C::Scalar>,
+{
+    pub fn scalar_mul(self, scalar: i32) -> Point<C> {
+        let mut result = Point::Infinity;
+        let mut count = scalar;
+
+        while count > 0 {
+            result = result + self;
+            count = count - 1;
+        }
+
+        result
+    }
+}
