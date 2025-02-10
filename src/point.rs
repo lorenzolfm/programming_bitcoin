@@ -122,12 +122,16 @@ where
         + std::ops::Div<C::Scalar, Output = C::Scalar>,
 {
     pub fn scalar_mul(self, scalar: i32) -> Point<C> {
+        let mut coef = scalar;
+        let mut current = self;
         let mut result = Point::Infinity;
-        let mut count = scalar;
 
-        while count > 0 {
-            result = result + self;
-            count = count - 1;
+        while coef > 0 {
+            if coef & 1 == 1 {
+                result = result + current;
+            }
+            current = current + current;
+            coef = coef >> 1;
         }
 
         result
