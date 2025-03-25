@@ -1,4 +1,5 @@
 mod field_element;
+mod field_element2;
 mod point;
 
 // TODO: implement ops vs checked_ops (i.e. checked_add vs add)
@@ -21,6 +22,107 @@ pub enum Error {
 mod tests {
     mod chapter_1 {
         use crate::{field_element::FieldElement, Pow};
+
+        #[test]
+        fn exercise2_again() {
+            // 44 + 33
+            let a = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(44),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let b = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(33),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let expected = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(20),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let actual = a.add(b).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 9 - 29
+            let a = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(9),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let b = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(29),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let expected = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(37),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let actual = a.sub(b).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 17 + 42 + 49
+            let a = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(17),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let b = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(42),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let c = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(49),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let expected = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(51),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let actual = a.add(b).unwrap().add(c).unwrap();
+
+            assert_eq!(actual, expected);
+
+            // 52 - 30 - 38
+            let a = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(52),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let b = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(30),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+            let c = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(38),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let expected = crate::field_element2::FieldElement::new(
+                crypto_bigint::U256::from_u128(41),
+                crypto_bigint::U256::from_u128(57),
+            )
+            .unwrap();
+
+            let actual = a.sub(b).unwrap().sub(c).unwrap();
+
+            assert_eq!(actual, expected);
+        }
 
         #[test]
         fn exercise2() {

@@ -1,5 +1,4 @@
 use std::ops::{Add, Sub};
-
 use crate::Pow;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
