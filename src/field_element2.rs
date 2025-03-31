@@ -17,28 +17,28 @@ impl FieldElement {
         Ok(FieldElement { num, prime })
     }
 
-    pub fn add(self, other: FieldElement) -> Result<FieldElement, crate::Error> {
-        if self.prime != other.prime {
+    pub fn add(self, rhs: FieldElement) -> Result<FieldElement, crate::Error> {
+        if self.prime != rhs.prime {
             return Err(crate::Error::ValueError(
                 "Primes must be the same".to_string(),
             ));
         }
 
         Ok(FieldElement {
-            num: self.num.add_mod(&other.num, &self.prime),
+            num: self.num.add_mod(&rhs.num, &self.prime),
             prime: self.prime,
         })
     }
 
-    pub fn sub(self, other: FieldElement) -> Result<FieldElement, crate::Error> {
-        if self.prime != other.prime {
+    pub fn sub(self, rhs: FieldElement) -> Result<FieldElement, crate::Error> {
+        if self.prime != rhs.prime {
             return Err(crate::Error::ValueError(
                 "Primes must be the same".to_string(),
             ));
         }
 
         Ok(FieldElement {
-            num: self.num.sub_mod(&other.num, &self.prime),
+            num: self.num.sub_mod(&rhs.num, &self.prime),
             prime: self.prime,
         })
     }
